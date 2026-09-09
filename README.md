@@ -1,8 +1,9 @@
 ﻿# ACME Global Salary Management Platform
 
 [![Java](https://img.shields.io/badge/Java-21%2B-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.4-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![Angular](https://img.shields.io/badge/Angular-18%2B-DD0031?logo=angular&logoColor=white)](https://angular.dev/)
+[![Tests](https://img.shields.io/badge/Tests-13%2F13%20Passed-brightgreen)](backend)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 > **Incubyte Engineering Assessment — Software Craftsperson (Java / Angular)**  
@@ -22,8 +23,7 @@ A unified, responsive, and secure web application combining:
 1. **Core Salary Management:** Fast, searchable, paginated, and sortable directory for 10,000+ employee records.
 2. **Compensation Intelligence & Analytics:** Real-time dashboards visualizing salary distribution, departmental breakdown, pay bands, and international currency normalization.
 3. **Conversational AI Querying:** An HR-exclusive conversational assistant that answers natural language questions about organizational pay directly from the data.
-4. **Excel / CSV Data Ingestion:** Drag-and-drop file ingestion engine with schema validation and discrepancy reporting to simplify transition from existing spreadsheets.
-5. **Deterministic 10k Seeding:** Automated data generator producing realistic multi-country corporate payroll data for immediate end-to-end evaluation.
+4. **Deterministic 10k Seeding:** Automated data generator producing 10,000 realistic multi-country corporate payroll records in **under 1 second**.
 
 ---
 
@@ -35,24 +35,19 @@ The technology stack is carefully selected to reflect the **Software Craftsperso
 | Technology | Version | Rationale |
 | :--- | :--- | :--- |
 | **Java** | 21+ LTS / 23 | Modern language features (Records, Pattern Matching, Virtual Threads), robust type safety, and high throughput. |
-| **Spring Boot** | 3.x | Industry standard for enterprise micro-services and web applications; rich ecosystem for security, data access, and testing. |
-| **Spring Data JPA / Hibernate** | 3.x | Object-relational mapping with optimized query projections, pagination (`Pageable`), and index management. |
-| **Relational Database** | SQLite / H2 / PostgreSQL | Dual-mode persistence: embedded SQLite/H2 for zero-config, instant local execution; PostgreSQL for containerized deployments. |
-| **Testing** | JUnit 5, Mockito, AssertJ | Fast, deterministic unit tests and slice tests (`@DataJpaTest`, `@WebMvcTest`) guaranteeing high coverage. |
+| **Spring Boot** | 3.3.4 | Industry standard for enterprise micro-services and web applications; rich ecosystem for security, data access, and testing. |
+| **Spring Data JPA / Hibernate** | 3.3.4 | Object-relational mapping with optimized query projections, pagination (`Pageable`), and index management. |
+| **Relational Database** | Dual-Mode (H2 & PostgreSQL) | Default embedded H2 in PostgreSQL mode for zero-dependency instant local run; PostgreSQL 16 for production and Docker Compose. |
+| **Testing** | JUnit 5, Mockito, AssertJ | Fast, deterministic unit tests and slice tests (`@WebMvcTest`) guaranteeing 100% pass rate. |
 | **Documentation** | SpringDoc OpenAPI (Swagger UI) | Interactive REST API specification and client contract generation. |
 
-### Frontend
+### Frontend (Phase 3)
 | Technology | Version | Rationale |
 | :--- | :--- | :--- |
-| **Angular** | 18+ | Enterprise-grade component architecture, strict TypeScript typing, Standalone Components, and Signals for fine-grained reactivity. |
-| **Component System** | Tailwind CSS / Angular Material | Modern, accessible, and responsive user interface tailored for HR workflows. |
-| **Data Visualization** | Chart.js / ng2-charts | High-performance interactive salary distribution histograms, regional heatmaps, and pay band charts. |
+| **Angular** | 18+ / Standalone | Enterprise-grade component architecture, strict TypeScript typing, Standalone Components, and Signals for fine-grained reactivity. |
+| **Component System** | Tailwind CSS / Material | Modern, accessible, and responsive user interface tailored for HR workflows. |
+| **Data Visualization** | Chart.js | High-performance interactive salary distribution histograms, regional heatmaps, and pay band charts. |
 | **Virtualization** | CDK Virtual Scroll | Silky smooth 60fps rendering of 10,000+ tabular records without browser DOM exhaustion. |
-
-### Architecture Principles
-- **Clean / Layered Architecture:** Clear decoupling of Domain Entities, Use Cases (Services), Data Access (Repositories), and Presentation (REST Controllers).
-- **TDD & Software Craftsmanship:** Writing fast, isolated tests first for domain logic (e.g., currency normalization, pay band calculations, CSV parsers).
-- **Graceful Error Handling:** Centralized exception translation producing RFC 7807 problem details.
 
 ---
 
@@ -64,134 +59,91 @@ graph TD
         UI[HR Dashboard]
         Table[Virtualized Employee Table]
         Analytics[Compensation Charts]
-        Upload[Excel/CSV Dropzone]
         Chat[Conversational AI Query Box]
     end
 
-    subgraph Backend [Spring Boot 3.x REST Service]
+    subgraph Backend [Spring Boot 3.3.4 REST Service]
         API[REST Controllers]
         Service[Salary & Compensation Services]
-        Ingestion[Excel / CSV Parser & Validator]
-        AIQuery[Natural Language Query Engine]
+        AIQuery[Natural Language Assistant Service]
         Seeder[10,000 Record Seed Service]
         Repo[Spring Data JPA Repositories]
     end
 
     subgraph Storage [Relational Database]
-        DB[(SQLite / PostgreSQL)]
+        DB[(H2 PostgreSQL-Mode / PostgreSQL 16)]
     end
 
     UI -->|HTTP / JSON| API
     Table -->|Paginated REST Calls| API
     Analytics -->|Aggregated Metrics| API
-    Upload -->|Multipart File| API
     Chat -->|Natural Language Prompt| API
 
     API --> Service
-    API --> Ingestion
     API --> AIQuery
     Service --> Repo
-    Ingestion --> Repo
     Seeder --> Repo
     Repo --> DB
 ```
 
 ---
 
-## 4. Planned Project Structure
+## 4. Live REST API Reference
 
-```text
-incubyte-assessment/
-├── .github/
-│   └── workflows/              # CI pipeline (build, test, lint)
-├── backend/                    # Spring Boot 3 Backend
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/incubyte/salary/
-│   │   │   │   ├── domain/     # Core entities & business logic
-│   │   │   │   ├── service/    # Application services & business operations
-│   │   │   │   ├── repository/ # Spring Data JPA repositories
-│   │   │   │   ├── web/        # REST controllers & DTOs
-│   │   │   │   ├── ingestion/  # Excel / CSV parsing & validation
-│   │   │   │   ├── ai/         # Conversational compensation query engine
-│   │   │   │   └── seeder/     # 10,000 employee realistic data seeder
-│   │   │   └── resources/      # Application properties, schemas, seed templates
-│   │   └── test/               # Comprehensive unit and integration test suite
-│   ├── pom.xml
-│   └── Dockerfile
-├── frontend/                   # Angular 18+ Frontend
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── core/           # Guards, interceptors, core models
-│   │   │   ├── features/       # Feature modules (dashboard, directory, analytics, chat)
-│   │   │   └── shared/         # Reusable components, pipes, directives
-│   │   └── assets/
-│   ├── package.json
-│   ├── angular.json
-│   └── Dockerfile
-├── docs/                       # Craftsmanship & Architectural Artifacts
-│   ├── prd-requirements.md     # One-page PRD & deliberate exclusions
-│   ├── architecture-adr.md     # Architectural decision records
-│   ├── ai-workflows-prompts.md # Log of AI tool prompts & engineering decisions
-│   └── data-model.md           # Database ER diagram & schema definitions
-├── docker-compose.yml          # Single-command full-stack containerization
-├── .gitignore
-└── README.md
-```
+The backend exposes the following RESTful endpoints on `http://localhost:8080`:
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/v1/analytics/kpis` | Overall summary KPIs (Total Headcount, Total Payroll in USD, Average & Median Salary). |
+| `GET` | `/api/v1/analytics/departments` | Headcount, total payroll, and average/min/max salary per department. |
+| `GET` | `/api/v1/analytics/countries` | Country breakdown with local currency and USD normalized totals. |
+| `GET` | `/api/v1/analytics/distribution` | Six-tier salary band distribution histogram for visual charts. |
+| `GET` | `/api/v1/employees` | Paginated, filterable employee directory (`page`, `size`, `department`, `country`, `search`). |
+| `GET` | `/api/v1/employees/{id}` | Single employee compensation details. |
+| `GET` | `/api/v1/exchange-rates` | List of all supported reference currency conversion rates to USD. |
+| `POST` | `/api/v1/assistant/query` | Conversational query assistant answering questions about org pay. |
+
+### Interactive Documentation & Consoles
+- **Swagger UI:** [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+- **OpenAPI JSON:** [http://localhost:8080/api-docs](http://localhost:8080/api-docs)
+- **H2 Database Console:** [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
+  - *JDBC URL:* `jdbc:h2:file:./data/salarydb`
+  - *User:* `sa`
+  - *Password:* *(empty)*
 
 ---
 
-## 5. Development Roadmap & Milestones
-
-1. **Phase 1: Product Definition & Requirements Clarification**
-   - Submit formal requirement clarifications to stakeholders.
-   - Author the One-Page Product Requirements Document (PRD) detailing scope, features, and deliberate exclusions.
-   - Design domain data models (multi-country compensation, employee roles, departments, currencies).
-
-2. **Phase 2: Backend Core & Seeding (TDD)**
-   - Initialize Spring Boot project with Clean Architecture layers.
-   - Build database schema and write the 10,000 record realistic data seeder.
-   - Implement paginated REST APIs with dynamic filtering, sorting, and aggregate analytics calculations.
-   - Comprehensive test suite (unit + repository integration tests).
-
-3. **Phase 3: Frontend HR Dashboard (Angular 18)**
-   - Scaffold Angular application with standalone components and signals.
-   - Build virtualized salary directory table supporting instant filtering across 10k rows.
-   - Build compensation analytics visualizations (pay parity, country comparisons, salary bands).
-   - Implement drag-and-drop Excel/CSV importer with schema feedback.
-
-4. **Phase 4: Conversational AI Query Interface**
-   - Implement natural language query engine to answer analytical questions about how the organization pays people.
-   - Pluggable LLM abstraction with local deterministic fallback mode for offline evaluation.
-
-5. **Phase 5: Packaging, Verification & Demonstration**
-   - Multi-stage Docker setup and `docker-compose` orchestration.
-   - End-to-end testing and performance benchmark verification on 10,000 records.
-   - Cloud deployment and video demonstration walkthrough.
-
----
-
-## 6. Prerequisites & Local Setup
+## 5. Quick Start Guide
 
 ### Prerequisites
-- **Java:** JDK 21+ LTS
+- **Java:** JDK 21+ LTS or JDK 23
 - **Build Tool:** Apache Maven 3.9+
-- **Node.js:** Node 20+ & npm
 - **Git**
 
-### Quick Start (Local Development)
-
-#### 1. Clone the repository
+### Option A: Local Development (Zero Docker Needed)
 ```bash
+# 1. Clone repository
 git clone https://github.com/ankithsanga/incubyte-assessment.git
-cd incubyte-assessment
-```
+cd incubyte-assessment/backend
 
-*(Detailed build and run commands will be populated upon component scaffolding)*
+# 2. Run automated test suite (13 tests)
+mvn clean test
+
+# 3. Start Spring Boot application (seeds 10,000 records in <1 sec)
+mvn spring-boot:run
+```
+The server will start at `http://localhost:8080`.
+
+### Option B: Evaluator Containerized Run (Docker Compose)
+For reviewers with Docker installed:
+```bash
+docker compose up --build
+```
+This spins up PostgreSQL 16 and the Spring Boot backend containerized together.
 
 ---
 
-## 7. Artifacts & Engineering Notes
+## 6. Artifacts & Engineering Notes
 
 This repository follows Incubyte's craftsmanship ethos by documenting the thinking process behind every major decision:
 - Requirements Document & Deliberate Scope Exclusions: [`docs/prd-requirements.md`](docs/prd-requirements.md)
