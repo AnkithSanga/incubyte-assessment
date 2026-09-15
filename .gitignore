@@ -1,4 +1,4 @@
-﻿# Compiled class file
+# Compiled class file
 *.class
 
 # Log file
@@ -76,3 +76,7 @@ desktop.ini
 *.db
 *.sqlite
 *.sqlite3
+*.mv.db
+*.trace.db
+data/
+backend/data/
