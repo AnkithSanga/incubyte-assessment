@@ -1,9 +1,10 @@
-﻿# ACME Global Salary Management Platform
+# ACME Global Salary Management Platform
 
 [![Java](https://img.shields.io/badge/Java-21%2B-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.4-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
-[![Angular](https://img.shields.io/badge/Angular-18%2B-DD0031?logo=angular&logoColor=white)](https://angular.dev/)
-[![Tests](https://img.shields.io/badge/Tests-13%2F13%20Passed-brightgreen)](backend)
+[![Angular](https://img.shields.io/badge/Angular-21-DD0031?logo=angular&logoColor=white)](https://angular.dev/)
+[![Backend Tests](https://img.shields.io/badge/Backend%20Tests-16%2F16%20Passed-brightgreen)](backend)
+[![Frontend Tests](https://img.shields.io/badge/Frontend%20Tests-5%2F5%20Passed-brightgreen)](frontend)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 > **Incubyte Engineering Assessment — Software Craftsperson (Java / Angular)**  
@@ -20,7 +21,7 @@ ACME Organization currently manages salary and compensation data for **10,000 em
 
 ### The Solution
 A unified, responsive, and secure web application combining:
-1. **Core Salary Management:** Fast, searchable, paginated, and sortable directory for 10,000+ employee records.
+1. **Core Salary Management & CRUD:** Fast, searchable, paginated, and sortable directory for 10,000+ employee records with Add, Edit, Delete, and CSV Export actions.
 2. **Compensation Intelligence & Analytics:** Real-time dashboards visualizing salary distribution, departmental breakdown, pay bands, and international currency normalization.
 3. **Conversational AI Querying:** An HR-exclusive conversational assistant that answers natural language questions about organizational pay directly from the data.
 4. **Deterministic 10k Seeding:** Automated data generator producing 10,000 realistic multi-country corporate payroll records in **under 1 second**.
@@ -41,13 +42,13 @@ The technology stack is carefully selected to reflect the **Software Craftsperso
 | **Testing** | JUnit 5, Mockito, AssertJ | Fast, deterministic unit tests and slice tests (`@WebMvcTest`) guaranteeing 100% pass rate. |
 | **Documentation** | SpringDoc OpenAPI (Swagger UI) | Interactive REST API specification and client contract generation. |
 
-### Frontend (Phase 3)
+### Frontend
 | Technology | Version | Rationale |
 | :--- | :--- | :--- |
-| **Angular** | 18+ / Standalone | Enterprise-grade component architecture, strict TypeScript typing, Standalone Components, and Signals for fine-grained reactivity. |
-| **Component System** | Tailwind CSS / Material | Modern, accessible, and responsive user interface tailored for HR workflows. |
-| **Data Visualization** | Chart.js | High-performance interactive salary distribution histograms, regional heatmaps, and pay band charts. |
-| **Virtualization** | CDK Virtual Scroll | Silky smooth 60fps rendering of 10,000+ tabular records without browser DOM exhaustion. |
+| **Angular** | 21 Standalone | Enterprise-grade component architecture, strict TypeScript typing, Standalone Components, and Signals for fine-grained reactivity. |
+| **Theme & UI** | Custom Dark Theme CSS | Clean, modern, accessible executive dashboard styling with intuitive modal dialogs. |
+| **Data Visualization** | Chart.js | High-performance interactive salary distribution histograms, departmental bars, and country doughnut charts. |
+| **Testing** | Vitest, Jasmine/TestBed | Instant, deterministic unit tests for Angular components and services. |
 
 ---
 
@@ -55,16 +56,17 @@ The technology stack is carefully selected to reflect the **Software Craftsperso
 
 ```mermaid
 graph TD
-    subgraph Frontend [Angular 18+ SPA]
-        UI[HR Dashboard]
-        Table[Virtualized Employee Table]
-        Analytics[Compensation Charts]
-        Chat[Conversational AI Query Box]
+    subgraph Frontend [Angular 21 Standalone SPA]
+        UI[HR Executive Dashboard]
+        Table[Searchable & Filterable Employee Table]
+        Analytics[2-Tier Compensation Charts]
+        Chat[Conversational AI Query Modal]
+        CRUD[Add / Edit / Delete Modals & CSV Export]
     end
 
     subgraph Backend [Spring Boot 3.3.4 REST Service]
         API[REST Controllers]
-        Service[Salary & Compensation Services]
+        Service[Salary & Employee Services]
         AIQuery[Natural Language Assistant Service]
         Seeder[10,000 Record Seed Service]
         Repo[Spring Data JPA Repositories]
@@ -78,6 +80,7 @@ graph TD
     Table -->|Paginated REST Calls| API
     Analytics -->|Aggregated Metrics| API
     Chat -->|Natural Language Prompt| API
+    CRUD -->|POST / PUT / DELETE| API
 
     API --> Service
     API --> AIQuery
@@ -100,6 +103,9 @@ The backend exposes the following RESTful endpoints on `http://localhost:8080`:
 | `GET` | `/api/v1/analytics/distribution` | Six-tier salary band distribution histogram for visual charts. |
 | `GET` | `/api/v1/employees` | Paginated, filterable employee directory (`page`, `size`, `department`, `country`, `search`). |
 | `GET` | `/api/v1/employees/{id}` | Single employee compensation details. |
+| `POST` | `/api/v1/employees` | Create new employee with automatic FX conversion to USD. |
+| `PUT` | `/api/v1/employees/{id}` | Update employee role, department, location, or base salary. |
+| `DELETE`| `/api/v1/employees/{id}` | Remove employee from the database. |
 | `GET` | `/api/v1/exchange-rates` | List of all supported reference currency conversion rates to USD. |
 | `POST` | `/api/v1/assistant/query` | Conversational query assistant answering questions about org pay. |
 
@@ -117,22 +123,33 @@ The backend exposes the following RESTful endpoints on `http://localhost:8080`:
 
 ### Prerequisites
 - **Java:** JDK 21+ LTS or JDK 23
+- **Node.js:** v18+ LTS
 - **Build Tool:** Apache Maven 3.9+
 - **Git**
 
-### Option A: Local Development (Zero Docker Needed)
+### Step 1: Start Backend (Spring Boot)
 ```bash
-# 1. Clone repository
-git clone https://github.com/ankithsanga/incubyte-assessment.git
-cd incubyte-assessment/backend
+cd backend
 
-# 2. Run automated test suite (13 tests)
-mvn clean test
+# Run automated tests (16 unit and integration tests)
+mvn test
 
-# 3. Start Spring Boot application (seeds 10,000 records in <1 sec)
+# Start the Spring Boot application (seeds 10,000 records in <1 sec)
 mvn spring-boot:run
 ```
-The server will start at `http://localhost:8080`.
+Backend runs on `http://localhost:8080`.
+
+### Step 2: Start Frontend (Angular 21)
+```bash
+cd ../frontend
+
+# Run frontend tests (5 unit tests)
+npm test -- --watch=false
+
+# Start development server
+npm start
+```
+Frontend runs on `http://localhost:4200`.
 
 ### Option B: Evaluator Containerized Run (Docker Compose)
 For reviewers with Docker installed:
@@ -149,3 +166,5 @@ This repository follows Incubyte's craftsmanship ethos by documenting the thinki
 - Requirements Document & Deliberate Scope Exclusions: [`docs/prd-requirements.md`](docs/prd-requirements.md)
 - Architectural Decision Records (ADRs): [`docs/architecture-adr.md`](docs/architecture-adr.md)
 - AI Tooling & Prompt Logs: [`docs/ai-workflows-prompts.md`](docs/ai-workflows-prompts.md)
+- Compensation Analytics Guide: [`docs/compensation-analytics-guide.md`](docs/compensation-analytics-guide.md)
+
